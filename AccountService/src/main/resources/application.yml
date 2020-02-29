@@ -3,3 +3,18 @@ spring:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/accounts}
     username: ${DATABASE_USER:julia}
     password: ${DATABASE_PASSWORD}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: metrics
+  metrics:
+    enable:
+      jvm: false
+      jdbc: false
+      process: false
+      system: false
+      hikaricp: false
+      tomcat: false
+      logback: false
+

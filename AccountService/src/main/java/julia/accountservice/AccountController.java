@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
+    private final StatisticsService statisticsService;
 
     /**
      * Retrieves current balance or zero if addAmount() method was not called before for specified id
@@ -16,6 +17,7 @@ public class AccountController {
      */
     @GetMapping("{id}/")
     public Long getAmount(@PathVariable Integer id) {
+        statisticsService.updateGetAmountCounter();
         return accountService.getAmount(id);
     }
 
@@ -24,6 +26,7 @@ public class AccountController {
      */
     @PostMapping
     public void addAmount(@RequestBody AccountInvoice accountInvoice) {
+        statisticsService.updateAddAmountCounter();
         accountService.addAmount(accountInvoice.getId(), accountInvoice.getAmount());
     }
 }
