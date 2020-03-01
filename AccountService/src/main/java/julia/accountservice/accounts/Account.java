@@ -1,4 +1,4 @@
-package julia.accountservice;
+package julia.accountservice.accounts;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

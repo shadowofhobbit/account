@@ -1,4 +1,4 @@
-package julia.accountservice;
+package julia.accountservice.accounts;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
-    private final StatisticsService statisticsService;
 
     /**
      * Retrieves current balance or zero if addAmount() method was not called before for specified id
@@ -17,16 +16,17 @@ public class AccountController {
      */
     @GetMapping("{id}/")
     public Long getAmount(@PathVariable Integer id) {
-        statisticsService.updateGetAmountCounter();
         return accountService.getAmount(id);
     }
 
     /**
-     * Increases balance or set if addAmount() method was called first time
+     * Increases balance or sets if addAmount() method was called first time
+     *
+     * @param id balance identifier
+     * @param value positive or negative value, which must be added to current balance
      */
     @PostMapping
-    public void addAmount(@RequestBody AccountInvoice accountInvoice) {
-        statisticsService.updateAddAmountCounter();
-        accountService.addAmount(accountInvoice.getId(), accountInvoice.getAmount());
+    public void addAmount(@RequestParam Integer id, @RequestParam Long value) {
+        accountService.addAmount(id, value);
     }
 }

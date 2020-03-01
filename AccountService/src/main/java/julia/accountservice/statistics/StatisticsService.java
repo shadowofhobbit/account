@@ -1,26 +1,28 @@
-package julia.accountservice;
+package julia.accountservice.statistics;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class StatisticsService {
-    private final MeterRegistry registry;
+    public static final String COUNTER_AMOUNT_GET_TOTAL = "counter.amount.get.total";
+    public static final String COUNTER_AMOUNT_ADD_TOTAL = "counter.amount.add.total";
     private AtomicLong getCounter = new AtomicLong(0);
     private AtomicLong addCounter = new AtomicLong(0);
 
+    @Autowired
     public StatisticsService(MeterRegistry registry) {
-        this.registry = registry;
-//        Gauge.builder("counter.amount.get.minute", getCounter, AtomicLong::get)
+        //        Gauge.builder("counter.amount.get.minute", getCounter, AtomicLong::get)
 //                .register(registry);
-        Gauge.builder("counter.amount.get.total", getCounter, AtomicLong::get)
+        Gauge.builder(COUNTER_AMOUNT_GET_TOTAL, getCounter, AtomicLong::get)
                 .register(registry);
 //        Gauge.builder("counter.amount.add.minute", addCounter, AtomicLong::get)
 //                .register(registry);
-        Gauge.builder("counter.amount.add.total", addCounter, AtomicLong::get)
+        Gauge.builder(COUNTER_AMOUNT_ADD_TOTAL, addCounter, AtomicLong::get)
                 .register(registry);
     }
 

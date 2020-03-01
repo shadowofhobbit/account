@@ -1,4 +1,4 @@
-package julia.accountservice;
+package julia.accountservice.accounts;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;

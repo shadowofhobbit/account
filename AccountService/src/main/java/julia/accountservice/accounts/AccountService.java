@@ -1,4 +1,4 @@
-package julia.accountservice;
+package julia.accountservice.accounts;
 
 public interface AccountService {
 

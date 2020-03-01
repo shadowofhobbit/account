@@ -1,4 +1,4 @@
-package julia.accountservice;
+package julia.accountservice.statistics;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
