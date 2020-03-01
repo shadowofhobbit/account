@@ -1,0 +1,5 @@
+accountclient:
+  serverUrl: ${serverUrl:http://localhost:8080/accounts/}
+  rCount: ${rCount:1000}
+  wCount: ${wCount:1000}
+  idList: ${idList:9,1,7}
