@@ -1,7 +1,9 @@
 package julia.accountclient;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class AccountClient {
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     @Value("${accountclient.serverUrl}")
     private String url;
     @Value("${accountclient.rCount}")
@@ -22,12 +24,17 @@ public class AccountClient {
     private Integer wCount;
     @Value("${accountclient.idList}")
     private List<Integer> idList;
+    private static final Logger log = LogManager.getLogger(AccountClient.class);
 
+    @Autowired
+    public AccountClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     void testServer() throws InterruptedException {
-        System.out.println(rCount);
-        var executor = Executors.newFixedThreadPool(rCount + wCount);
-        var tasks = new ArrayList<Callable<Void>>(rCount + wCount);
+        int threads = rCount + wCount;
+        var executor = Executors.newFixedThreadPool(threads);
+        var tasks = new ArrayList<Callable<Void>>(threads);
         for (int i = 0; i < rCount; i++) {
             var idIndex = ThreadLocalRandom.current().nextInt(0, idList.size());
             String requestUrl = url + idList.get(idIndex) + "/";
@@ -35,7 +42,7 @@ public class AccountClient {
         }
         for (int i = 0; i < wCount; i++) {
             var idIndex = ThreadLocalRandom.current().nextInt(0, idList.size());
-            var amount = ThreadLocalRandom.current().nextLong();
+            var amount = 100;
             String requestUrl = url + "?id=" + idList.get(idIndex) + "&value=" + amount;
             tasks.add(new WriterCallable(restTemplate, requestUrl));
         }
@@ -54,7 +61,10 @@ public class AccountClient {
 
         @Override
         public Void call() {
-            String result = restTemplate.getForObject(url, String.class);
+            var response = restTemplate.getForEntity(url, String.class);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                log.error("Error getting amount " + response.getStatusCode());
+            }
             return null;
         }
     }
@@ -70,7 +80,10 @@ public class AccountClient {
 
         @Override
         public Void call() {
-            restTemplate.execute(url, HttpMethod.POST, null, null);
+            var response = restTemplate.postForEntity(url, null, Void.class);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                log.error("Error adding amount " + response.getStatusCode());
+            }
             return null;
         }
     }
