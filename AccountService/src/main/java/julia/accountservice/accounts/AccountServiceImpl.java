@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import java.sql.SQLException;
 
 
 @Service
@@ -13,7 +15,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
 
     @Cacheable(cacheNames = "amounts", key="#id")
-    @Transactional
+    @Transactional(readOnly = true)
     public Long getAmount(Integer id) {
         return accountRepository.findById(id)
                 .map(Account::getBalance)
@@ -21,15 +23,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @CachePut(cacheNames = "amounts", key="#id")
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = SQLException.class)
     public Long addAmount(Integer id, Long value)  {
         Account account = accountRepository.findById(id)
                 .map(found -> {
                     found.setBalance(found.getBalance() + value);
                     return found;
                 })
-                .orElse(new Account(id, value));
-        accountRepository.save(account);
+                .orElseGet(() -> accountRepository.save(new Account(id, value)));
         return account.getBalance();
     }
 }
