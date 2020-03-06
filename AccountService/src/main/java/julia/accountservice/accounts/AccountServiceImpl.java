@@ -3,6 +3,7 @@ package julia.accountservice.accounts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
     @CachePut(cacheNames = "amounts", key="#id")
     @Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = SQLException.class)
+    @Retryable(value = SQLException.class)
     public Long addAmount(Integer id, Long value)  {
         Account account = accountRepository.findById(id)
                 .map(found -> {
